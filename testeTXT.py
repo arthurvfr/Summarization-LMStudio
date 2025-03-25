@@ -124,7 +124,7 @@ if __name__ == "__main__":
         # Divide a entrevista em parágrafos
         entrevistas = [p.strip() for p in entrevista.split('\n\n') if p.strip()]
         
-        llm = LocalLLM(model_name="meta-llama-3.1-8b-instruct")
+        llm = LocalLLM(model_name="qwq-32b")
         
         print("=== PROCESSANDO ARQUIVOS ===")
         print(f"Lendo entrevista de: {os.path.join(DATA_DIR, ARQUIVO_ENTREVISTA)}")
