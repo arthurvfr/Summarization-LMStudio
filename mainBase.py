@@ -61,10 +61,8 @@ def encontrar_trechos_relevantes(entrevistas, resumo_anterior, llm, top_k=3):
 
 def gerar_resumo_rag(entrevistas, resumo_anterior, llm):
     """Implementação completa do RAG com modelo único"""
-    # Passo 1: Recuperação
     trechos_relevantes = encontrar_trechos_relevantes(entrevistas, resumo_anterior, llm)
     
-    # Passo 2: Geração
     prompt_template = """
     Com base no resumo atual e nos trechos relevantes das entrevistas, 
     produza um NOVO resumo detalhado (400-500 palavras) que:
@@ -92,7 +90,6 @@ def gerar_resumo_rag(entrevistas, resumo_anterior, llm):
         contexto="\n---\n".join(trechos_relevantes)
     ))
 
-# Entrevista longa para teste (aproximadamente 1000 tokens)
 ENTREVISTA_LONGA = [
     """
     ENTREVISTA COM A CEO MARIA SILVA - 15/05/2024
@@ -142,7 +139,6 @@ ENTREVISTA_LONGA = [
     """
 ]
 
-# Resumo anterior para teste
 RESUMO_ANTERIOR = """
 A empresa está passando por um período de crescimento acelerado, com foco em inovação tecnológica.
 Os indicadores financeiros mostram desempenho positivo, e a satisfação dos funcionários atingiu níveis recordes.
