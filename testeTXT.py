@@ -57,13 +57,11 @@ def dividir_texto_robusto(texto: str, max_tokens: int = 500) -> List[str]:
         max_tokens: Número máximo de tokens por segmento
         
     Returns:
-        Lista de segmentos de texto bem divididos
+        Lista de segmentos de texto divididos
     """
-    # Pré-processamento: normaliza quebras de linha
     texto = re.sub(r'\r\n', '\n', texto)
     texto = re.sub(r'\n{3,}', '\n\n', texto)
     
-    # Primeiro tenta dividir por parágrafos naturais
     segmentos = []
     paragrafos = [p.strip() for p in texto.split('\n\n') if p.strip()]
     
@@ -71,7 +69,7 @@ def dividir_texto_robusto(texto: str, max_tokens: int = 500) -> List[str]:
     current_length = 0
     
     for para in paragrafos:
-        para_length = len(para.split())  # Estimativa simples de tokens
+        para_length = len(para.split())  
         
         if current_length + para_length <= max_tokens:
             current_segment.append(para)
@@ -82,7 +80,6 @@ def dividir_texto_robusto(texto: str, max_tokens: int = 500) -> List[str]:
                 current_segment = [para]
                 current_length = para_length
             else:
-                # Parágrafo muito grande, divide por sentenças
                 sentencas = re.split(r'(?<=[.!?])\s+', para)
                 sub_segment = []
                 sub_length = 0
@@ -99,7 +96,6 @@ def dividir_texto_robusto(texto: str, max_tokens: int = 500) -> List[str]:
                             sub_segment = [sent]
                             sub_length = sent_length
                         else:
-                            # Sentença muito grande, divide forçadamente
                             palavras = sent.split()
                             for i in range(0, len(palavras), max_tokens):
                                 segmentos.append(' '.join(palavras[i:i+max_tokens]))
@@ -113,7 +109,7 @@ def dividir_texto_robusto(texto: str, max_tokens: int = 500) -> List[str]:
     return segmentos
 
 def carregar_arquivo(nome_arquivo: str) -> str:
-    """Versão melhorada com tratamento de encoding"""
+    """Função para carregar arquivos"""
     caminho = os.path.join(DATA_DIR, nome_arquivo)
     try:
         with open(caminho, 'r', encoding='utf-8') as file:
@@ -143,7 +139,6 @@ def processar_entrevista_longa(texto: str, llm: LocalLLM) -> List[str]:
     trechos_relevantes = []
     
     for segmento in segmentos:
-        # Processa cada segmento em paralelo (opcional)
         trechos = encontrar_trechos_relevantes([segmento], "", llm)
         trechos_relevantes.extend(trechos)
     
@@ -192,12 +187,13 @@ def gerar_resumo_rag(entrevistas: List[str], resumo_anterior: str, llm: LocalLLM
         input_variables=["resumo", "contexto"],
         template="""
         Com base no resumo atual e nos trechos relevantes das entrevistas, 
-        produza um NOVO resumo detalhado (400-500 palavras) que:
+        gere **SOMENTE** um NOVO resumo detalhado que:
         
         1. Mantenha todas informações importantes do resumo original
         2. Incorpore os novos insights dos trechos relevantes
         3. Seja bem estruturado e coeso
         4. Apresente apenas o resumo gerado, sem tópicos ou perguntas
+        5. Não inclua explicações, comentários ou formatação extra
         
         RESUMO ATUAL:
         {resumo}
@@ -235,11 +231,11 @@ if __name__ == "__main__":
         
         if len(entrevista.split()) > 5000:  
             print("Processando arquivo grande...")
-            llm = LocalLLM(model_name="qwq-32b")
+            llm = LocalLLM(model_name="genma-3-12b-it")
             novo_resumo = gerar_resumo_rag([entrevista], resumo_anterior, llm)
         else:
             entrevistas = [p.strip() for p in entrevista.split('\n\n') if p.strip()]
-            llm = LocalLLM(model_name="qwq-32b")
+            llm = LocalLLM(model_name="genma-3-12b-it")
             novo_resumo = gerar_resumo_rag(entrevistas, resumo_anterior, llm)
         
         salvar_arquivo(ARQUIVO_NOVO_RESUMO, novo_resumo)
