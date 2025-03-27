@@ -11,19 +11,34 @@ DATA_DIR = os.path.join(BASE_DIR, 'data')
 
 LM_STUDIO_URL = "http://127.0.0.1:1234/v1/completions"
 
+MODELOS_DISPONIVEIS = {
+    "1": {
+        "nome": "gemma-3-12b-it",
+        "nome_arquivo": "resumo_gemma.txt",
+        "max_tokens": 1200
+    },
+    "2": {
+        "nome": "meta-llama-3.1-8b-instruct",
+        "nome_arquivo": "resumo_llama.txt",
+        "max_tokens": 1000
+    }
+}
+
 class LocalLLM(BaseLLM):
     model_name: str
+    max_tokens: int = 1000  # Valor padrão
 
-    def __init__(self, model_name: str, **kwargs):
+    def __init__(self, model_name: str, max_tokens: int = 1000, **kwargs):
         super().__init__(model_name=model_name, **kwargs)
         self.model_name = model_name
+        self.max_tokens = max_tokens
 
     def _call(self, prompt: str, stop=None) -> str:
         headers = {"Content-Type": "application/json"}
         payload = {
             "model": self.model_name,
             "prompt": prompt,
-            "max_tokens": 1000,
+            "max_tokens": self.max_tokens,
             "temperature": 0.3,
             "top_p": 0.9
         }
@@ -44,6 +59,18 @@ class LocalLLM(BaseLLM):
     @property
     def _llm_type(self):
         return "local_llm"
+    
+def selecionar_modelo():
+    """Interface para seleção do modelo pelo usuário"""
+    print("\nModelos disponíveis:")
+    for key, model in MODELOS_DISPONIVEIS.items():
+        print(f"{key}. {model['nome']}")
+    
+    while True:
+        escolha = input("\nEscolha o modelo (1 ou 2): ")
+        if escolha in MODELOS_DISPONIVEIS:
+            return MODELOS_DISPONIVEIS[escolha]
+        print("Opção inválida. Digite 1 ou 2.")
 
 def dividir_texto_robusto(texto: str, max_tokens: int = 500) -> List[str]:
     """
@@ -223,29 +250,37 @@ def gerar_resumo_em_partes(trechos: List[str], resumo: str, llm: LocalLLM) -> st
 if __name__ == "__main__":
     ARQUIVO_ENTREVISTA = "entrevista.txt"
     ARQUIVO_RESUMO_ANTERIOR = "resumo_anterior.txt"
-    ARQUIVO_NOVO_RESUMO = "novo_resumo.txt"
     
     try:
+        modelo_escolhido = selecionar_modelo()
+        nome_modelo = modelo_escolhido['nome']
+        nome_arquivo_saida = modelo_escolhido['nome_arquivo']
+        
         entrevista = carregar_arquivo(ARQUIVO_ENTREVISTA)
         resumo_anterior = carregar_arquivo(ARQUIVO_RESUMO_ANTERIOR)
         
+        llm = LocalLLM(
+            model_name=nome_modelo,
+            max_tokens=modelo_escolhido['max_tokens']
+        )
+        
+        print(f"\n=== PROCESSANDO COM MODELO {nome_modelo} ===")
+        
         if len(entrevista.split()) > 5000:  
             print("Processando arquivo grande...")
-            llm = LocalLLM(model_name="genma-3-12b-it")
             novo_resumo = gerar_resumo_rag([entrevista], resumo_anterior, llm)
         else:
             entrevistas = [p.strip() for p in entrevista.split('\n\n') if p.strip()]
-            llm = LocalLLM(model_name="genma-3-12b-it")
             novo_resumo = gerar_resumo_rag(entrevistas, resumo_anterior, llm)
         
-        salvar_arquivo(ARQUIVO_NOVO_RESUMO, novo_resumo)
+        salvar_arquivo(nome_arquivo_saida, novo_resumo)
         
         print(f"\n=== RESUMO GERADO COM SUCESSO ===")
-        print(f"Arquivo criado em: {os.path.join(DATA_DIR, ARQUIVO_NOVO_RESUMO)}")
+        print(f"Modelo utilizado: {nome_modelo}")
+        print(f"Arquivo criado em: {os.path.join(DATA_DIR, nome_arquivo_saida)}")
         print(f"Tamanho do novo resumo: {len(novo_resumo.split())} palavras")
         
     except FileNotFoundError as e:
         print(f"\nERRO: Arquivo não encontrado na pasta 'data': {str(e)}")
-        print(f"Certifique-se que os arquivos '{ARQUIVO_ENTREVISTA}' e '{ARQUIVO_RESUMO_ANTERIOR}' existem na pasta 'data'")
     except Exception as e:
         print(f"\nERRO durante o processamento: {str(e)}")
