@@ -13,14 +13,29 @@ LM_STUDIO_URL = "http://127.0.0.1:1234/v1/completions"
 
 MODELOS_DISPONIVEIS = {
     "1": {
-        "nome": "gemma-3-12b-it",
-        "nome_arquivo": "resumo_gemma.txt",
+        "nome": "gemma-3-12b-it@q8_0",
+        "nome_arquivo": "resumo_gemma12B_8bits.txt",
         "max_tokens": 1200
     },
     "2": {
         "nome": "meta-llama-3.1-8b-instruct",
-        "nome_arquivo": "resumo_llama.txt",
+        "nome_arquivo": "resumo_llama8B.txt",
         "max_tokens": 1000
+    },
+    "3": {
+        "nome": "gemma-3-27b-it",
+        "nome_arquivo": "resumo_gemma27b.txt",
+        "max_tokens": 1500
+    },
+    "4": {
+        "nome": "deepseek-r1-distill-qwen-32b",
+        "nome_arquivo": "resumo_qwen32b.txt",
+        "max_tokens": 1500
+    },
+    "5": {
+        "nome": "lmstudio-community/deepseek-r1-distill-qwen-32b",
+        "nome_arquivo": "resumo_qwen32b_3bits.txt",
+        "max_tokens": 1500
     }
 }
 
@@ -67,10 +82,10 @@ def selecionar_modelo():
         print(f"{key}. {model['nome']}")
     
     while True:
-        escolha = input("\nEscolha o modelo (1 ou 2): ")
+        escolha = input("\nEscolha o modelo (1, 2, 3, 4 ou 5): ")
         if escolha in MODELOS_DISPONIVEIS:
             return MODELOS_DISPONIVEIS[escolha]
-        print("Opção inválida. Digite 1 ou 2.")
+        print("Opção inválida. Digite 1, 2, 3, 4 ou 5.")
 
 def dividir_texto_robusto(texto: str, max_tokens: int = 500) -> List[str]:
     """
