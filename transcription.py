@@ -26,14 +26,14 @@ def transcrever_audio() -> str | None:
         else:
             print(f"Erro: Arquivo não encontrado em '{caminho_completo}' nem em '{caminho_na_data}'.")
             print("Verifique o nome e o local do arquivo.")
-            return None # Retorna None em caso de falha
+            return None 
 
     pasta_saida = "data"
     os.makedirs(pasta_saida, exist_ok=True)
     arquivo_saida = os.path.join(pasta_saida, "transcricao.txt")
 
     print("\nCarregando modelo Whisper (isso pode levar alguns minutos na primeira vez)...")
-    nome_modelo_whisper = "medium"
+    nome_modelo_whisper = "turbo"
 
     if torch.cuda.is_available():
         device = "cuda"

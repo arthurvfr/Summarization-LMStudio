@@ -35,7 +35,19 @@ MODELOS_DISPONIVEIS = {
         "nome_arquivo": "resumo_qwen32b_3bits.txt",
         "max_tokens_output": 4096,
         "context_window_approx": 16000
-    }
+    },
+    "6": {
+        "nome": "gemma-3-12b-it",
+        "nome_arquivo": "resumo_gemma12b_4bits.txt",
+        "max_tokens_output": 2048,
+        "context_window_approx": 8000
+    },
+    "7": {
+        "nome": "deepseek-r1-distill-llama-8b",
+        "nome_arquivo": "resumo_llama8b_4bits.txt",
+        "max_tokens_output": 2048,
+        "context_window_approx": 8000
+    },
 }
 
 TAMANHO_PARTE_PALAVRAS_PADRAO = 700
