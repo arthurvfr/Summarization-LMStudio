@@ -57,11 +57,6 @@ def refinar_resumo(resumo_existente: str, resumo_nova_info: str, llm: LLMLocal, 
         """
     )
 
-    # --- Lógica de Truncamento (Simplificada) ---
-    # Estimar tokens/palavras é impreciso. Uma abordagem mais simples é garantir
-    # que o prompt caiba no *output* máximo do modelo como uma heurística,
-    # já que o contexto de entrada costuma ser maior.
-    # Pode precisar de ajustes dependendo do modelo real e seu contexto.
     max_palavras_input_estimado = llm.max_tokens_para_gerar * 2 
     palavras_prompt_base = len(template_prompt.template.split()) 
     palavras_resumo_novo = len(resumo_nova_info.split())
